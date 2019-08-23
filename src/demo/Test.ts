@@ -1,38 +1,25 @@
-import makeReducer from "../../../utils/makeReducer";
-import { DocumentCheck } from "../../../models/DocumentCheck";
+import makeReducer from "../makeReducer";
 
 export default makeReducer({
     namespace: 'test',
     initialState: {
-        ack: 0,
-        audit: '-1',
-        ctime: "2019-08-22 10:48:11",
-        cuser: "system",
-        dirtyImgs: "",
-        document_id: "hytcern2657152",
-        id: "295722",
-        msg: ",0,",
-        mtime: "2019-08-22 10:50:30",
-        mtime_unix: 1566442091,
-        muser: "jiangyu3@staff.sina.com.cn",
-        muser_editor_group: "",
-        origin_from: 0,
-        original_link: "http://www.ifnews.com/17/detail-43034.html",
-        package_type: 1,
-        remarks: "",
-        source: '4',
-        task_id: "5858fccee138233f9d645621",
-    } as DocumentCheck,
+        name: 'tom',
+        id: '5858fccee138233f9d645621',
+        label: ['student', 'human'],
+    },
     reducers: {
-        audit(state, action) {
-            let { audit } = action;
+        update(state, action) {
+            let { type, ...rest } = action;
 
-            return { audit };
+            return { ...rest };
         },
-        updateMsg(state, action) {
-            let { msg } = action;
+        addLabel(state, action) {
+            let { label } = action;
 
-            return { msg };
+            if (!label) {
+                return;
+            }
+            return { label: [...state.label, ...label] };
         }
     }
 });

@@ -5,16 +5,16 @@ import Test from "./Test";
 
 export default connect(
     (state: any) => ({
-        msg: state.test.msg,
+        name: state.test.name,
     })
 )(
     (props: {
-        msg: string;
+        name: string;
     }) => {
         return <div>
-            <input value={props.msg} onChange={e => {
-                props['dispatch'](Test.actions.updateMsg({
-                    msg: e.target.value
+            <input value={props.name} onChange={e => {
+                props['dispatch'](Test.actions.update({
+                    name: e.target.value
                 }));
             }} />
         </div>;

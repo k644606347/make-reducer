@@ -4,7 +4,6 @@ import React from "react";
 import Test from "./Test";
 import { createStore, combineReducers } from "redux";
 import UpdateMsg from "./UpdateMsg";
-import DevToolsApp from 'remotedev-app';
 
 const reducers = {
     test: Test.reducer
