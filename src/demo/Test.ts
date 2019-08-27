@@ -1,6 +1,6 @@
 import makeReducer from "../makeReducer";
 
-export default makeReducer({
+const Test = makeReducer({
     namespace: 'test',
     initialState: {
         name: 'tom',
@@ -23,3 +23,5 @@ export default makeReducer({
         }
     }
 });
+
+export default Test;
