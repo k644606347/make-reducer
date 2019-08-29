@@ -80,7 +80,7 @@ export const Test2 = makeReducer({
         label: ['student', 'human'],
     },
     reducers: {
-        a(state, type, payload) {
+        a(state, type, payload: { x: string}) {
             return {...state};
         },
         update(state, type, {

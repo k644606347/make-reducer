@@ -3,6 +3,7 @@ import React from "react";
 import { Reducers } from "./App";
 import Test from "./Test";
 import { Test2 } from "../makeReducer2";
+import { action2 } from "../makeReducer3";
 
 
 Test2.actions.update({ label: 'tom2' });
@@ -27,8 +28,8 @@ export default connect(
                 console.log(e.keyCode);
                 if (e.keyCode !== 13)
                     return;
-                props['dispatch'](Test2.actions.addLabel({
-                    label: e.target['value']
+                props['dispatch'](action2({
+                    y: e.target['value']
                 }));
             }} />
             <ol>
