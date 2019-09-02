@@ -1,44 +1,62 @@
 
 const separator = ':';
 
-type Reducer<S, P> = (state: S, payload: P) => Partial<S>;
-const createStore = <S>(namespace: string, initialState: S) => {
+type Reducer<S, P, T> = (state: S, payload: P, type: T) => Partial<S>;
 
-    const reduers: [string, Reducer<S, any>][] = [];
+const buildActionType = (modelName: string, type: string) => {
+    return modelName + separator + type;
+}
+const parseActiontype = (reduxType: string) => {
+    let separatorIndex = reduxType.indexOf(':'),
+        modelName = reduxType.substring(0, separatorIndex),
+        actionType = reduxType.substring(separatorIndex + 1);
+        
+    return [modelName, actionType];
+}
+const createModel = <S>(modelName: string, initialState: S) => {
+
+    const reducers: [string, Reducer<S, unknown, string>][] = [];
     const rootReducer = (state = initialState, action: { type: string; payload }) => {
-        let { type, payload } = action;
+        let { type: reduxType, payload } = action,
+            parsedArr = parseActiontype(reduxType),
+            type = parsedArr[1];
 
-        let separatorIndex = type.indexOf(':'),
-            n = type.substring(0, separatorIndex),
-            realType = type.substring(separatorIndex + 1);
-
-        if (n !== namespace)
+        if (parsedArr[0] !== modelName)
             return state;
             
-        let reducer = reduers.find(r => r[0] === realType);
+        let reducer = reducers.find(r => r[0] === type);
 
         if (reducer)
-            return reducer[1](state, payload);
+            return reducer[1](state, payload, type);
         else {
-            let err = new Error(`action.type = ${type}没有对应的reducer处理函数`);
+            let err = new Error(`action.type = ${reduxType}没有对应的reducer处理函数`);
             console.error(err);
             return state;
         }
     }
-    const createAction = <T extends string, P>(type: T, reducer: (state: S, payload: P) => Partial<S>) => {
+    
+    const createAction = <T extends string, P>(type: T, reducer: (state: S, payload: P, type: T) => Partial<S>) => {
         let action = (payload: P) => {
-            return { payload, type: namespace + separator + type };
+            return { payload, type: buildActionType(modelName, type) };
         };
-        reduers.push([type, reducer]);
+        reducers.push([type, reducer]);
         return action;
     }
+
+    const setState = (payload: Partial<S>) => {
+        return { payload, type: buildActionType(modelName, 'setState') };
+    }
+    reducers.push(['setState', (state: S, payload: Partial<S>) => {
+        return {...state, ...payload};
+    }]);
     return {
+        setState,
         reducer: rootReducer,
         action: createAction,
     };
 }
 
-const Test3 = createStore(
+const Test3 = createModel(
     'test',
     {
         name: 'tom',
@@ -46,18 +64,19 @@ const Test3 = createStore(
         label: ['student', 'human'],
     });
 
-let action1 = Test3.action('a', (state, payload: {x: string}) => {
-    return {...state};
-});
-let action2 = Test3.action('addLabel', (state, payload: {y: string}) => {
-    let newLabel = [...state.label];
-
-    newLabel.push(payload.y);
-    return { label: newLabel };
-});
+let actions = {
+    a: Test3.action('a', (state, payload: {x: string}) => {
+        return {...state};
+    }),
+    b: Test3.action('addLabel', (state, payload: {y: string}) => {
+        let newLabel = [...state.label];
+    
+        newLabel.push(payload.y);
+        return { label: newLabel };
+    })
+};
 
 export {
     Test3,
-    action1,
-    action2,
+    actions
 }
