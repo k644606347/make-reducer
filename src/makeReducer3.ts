@@ -37,7 +37,7 @@ const createModel = <S>(modelName: string, initialState: S) => {
     
     const createAction = <T extends string, P>(type: T, reducer: (state: S, payload: P, type: T) => Partial<S>) => {
         let action = (payload: P) => {
-            return { payload, type: buildActionType(modelName, type) };
+            return { type: buildActionType(modelName, type), payload };
         };
         reducers.push([type, reducer]);
         return action;
