@@ -1,6 +1,6 @@
 import { connect } from "react-redux";
 import React from "react";
-import { Reducers } from "./App";
+import { Reducers, AppState } from "./App";
 import Test from "./Test";
 import { Test2 } from "../makeReducer2";
 import { Test3, actions } from "../makeReducer3";
@@ -9,9 +9,10 @@ import { Test3, actions } from "../makeReducer3";
 Test2.actions.update({ label: 'tom2' });
 
 export default connect(
-    (state: any) => ({
+    (state: AppState) => ({
         name: state.test.name,
-        label: state.test2.label,
+        label: state.test3.label,
+        // label: state.test2.label,
     })
 )(
     (props: {

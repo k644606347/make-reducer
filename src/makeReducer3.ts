@@ -27,7 +27,7 @@ const createModel = <S>(modelName: string, initialState: S) => {
         let reducer = reducers.find(r => r[0] === type);
 
         if (reducer)
-            return reducer[1](state, payload, type);
+            return { ...state, ...reducer[1](state, payload, type) };
         else {
             let err = new Error(`action.type = ${reduxType}没有对应的reducer处理函数`);
             console.error(err);
