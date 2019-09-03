@@ -31,8 +31,8 @@ export default connect(
             <button onClick={e => {
                 let result = props['dispatch'](Test3.actions.c(String(Math.random() * 10)));
 
-                result.then(function() {
-                    console.log(arguments);
+                result.then(function(data) {
+                    console.log(data);
                 })
             }}>setTimeout!</button>
             <ol>

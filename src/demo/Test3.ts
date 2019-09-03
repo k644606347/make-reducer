@@ -9,16 +9,16 @@ const model = createModel(
     });
 
 let Test3 = addActions(model, {
-    a: model.addReducer('a', (state, payload: {x: string}) => {
+    a: model.action('a', (state, payload: {x: string}) => {
         return {...state};
     }),
-    b: model.addReducer('addLabel', (state, payload: {y: string}) => {
+    b: model.action('addLabel', (state, payload: {y: string}) => {
         let newLabel = [...state.label];
     
         newLabel.push(payload.y);
         return { label: newLabel };
     }),
-    c: model.addThunk('c', (payload: string, dispatch, getState) => {
+    c: model.asyncAction('c', (payload: string, dispatch, getState) => {
         return new Promise<string>((resolve, reject) => {
             setTimeout(() => {
                 resolve(payload);
@@ -29,5 +29,8 @@ let Test3 = addActions(model, {
         });
     }),
 });
+
+let arr1: [string, number][] = [['a', 1], ['b', 2]];
+let arr2 = arr1.map(n => n[0]);
 
 export default Test3;

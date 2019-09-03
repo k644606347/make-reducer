@@ -36,7 +36,7 @@ export const createModel = <S>(modelName: string, initialState: S) => {
         }
     }
     
-    const addReducer = <T extends string, P>(type: T, reducer: (state: S, payload: P, type: T) => Partial<S>) => {
+    const action = <T extends string, P>(type: T, reducer: (state: S, payload: P, type: T) => Partial<S>) => {
         let action = (payload: P) => {
             return { type: buildActionType(modelName, type), payload };
         };
@@ -51,7 +51,7 @@ export const createModel = <S>(modelName: string, initialState: S) => {
         return {...state, ...payload};
     }]);
 
-    const addThunk = <T extends string, P, Result>(type: T, handler: (payload: P, dispatch, getState) => Result) => {
+    const asyncAction = <T extends string, P, PromiseResult>(type: T, handler: (payload: P, dispatch, getState) => Promise<PromiseResult>) => {
         let action = (payload: P) => {
             return (...args) => {
                 return handler(payload, args[0], args[1]);
@@ -63,8 +63,8 @@ export const createModel = <S>(modelName: string, initialState: S) => {
     return {
         setState,
         reducer: rootReducer,
-        addReducer,
-        addThunk,
+        action,
+        asyncAction,
     };
 }
     // https://www.tslang.cn/docs/handbook/advanced-types.html
