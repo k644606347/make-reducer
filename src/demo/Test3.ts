@@ -9,7 +9,7 @@ const model = createModel(
     });
 
 let Test3 = addActions(model, {
-    a: model.action('a', (state, payload: {x: string}) => {
+    a: model.action('a', (state) => {
         return {...state};
     }),
     b: model.action('addLabel', (state, payload: {y: string}) => {
