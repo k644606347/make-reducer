@@ -2,12 +2,7 @@ import { connect } from "react-redux";
 import React from "react";
 import { Reducers, AppState } from "./App";
 import Test from "./Test";
-import { Test2 } from "../makeReducer2";
-import { Test3, actions } from "../makeReducer3";
-
-
-Test2.actions.update({ label: 'tom2' });
-
+import Test3 from "./Test3";
 export default connect(
     (state: AppState) => ({
         name: state.test.name,
@@ -29,10 +24,17 @@ export default connect(
                 console.log(e.keyCode);
                 if (e.keyCode !== 13)
                     return;
-                props['dispatch'](actions.b({
+                props['dispatch'](Test3.actions.b({
                     y: e.target['value']
                 }));
             }} />
+            <button onClick={e => {
+                let result = props['dispatch'](Test3.actions.c(String(Math.random() * 10)));
+
+                result.then(function() {
+                    console.log(arguments);
+                })
+            }}>setTimeout!</button>
             <ol>
                 {
                     props.label.map(l => <li>{l}</li>)

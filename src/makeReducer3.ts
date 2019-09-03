@@ -13,7 +13,8 @@ const parseActiontype = (reduxType: string) => {
         
     return [modelName, actionType];
 }
-const createModel = <S>(modelName: string, initialState: S) => {
+
+export const createModel = <S>(modelName: string, initialState: S) => {
 
     const reducers: [string, Reducer<S, unknown, string>][] = [];
     const rootReducer = (state = initialState, action: { type: string; payload }) => {
@@ -35,7 +36,7 @@ const createModel = <S>(modelName: string, initialState: S) => {
         }
     }
     
-    const createAction = <T extends string, P>(type: T, reducer: (state: S, payload: P, type: T) => Partial<S>) => {
+    const addReducer = <T extends string, P>(type: T, reducer: (state: S, payload: P, type: T) => Partial<S>) => {
         let action = (payload: P) => {
             return { type: buildActionType(modelName, type), payload };
         };
@@ -49,34 +50,24 @@ const createModel = <S>(modelName: string, initialState: S) => {
     reducers.push(['setState', (state: S, payload: Partial<S>) => {
         return {...state, ...payload};
     }]);
+
+    const addThunk = <T extends string, P, Result>(type: T, handler: (payload: P, dispatch, getState) => Result) => {
+        let action = (payload: P) => {
+            return (...args) => {
+                return handler(payload, args[0], args[1]);
+            }
+        };
+
+        return action;
+    }
     return {
         setState,
         reducer: rootReducer,
-        action: createAction,
+        addReducer,
+        addThunk,
     };
 }
-
-const Test3 = createModel(
-    'test',
-    {
-        name: 'tom',
-        id: '5858fccee138233f9d645621',
-        label: ['student', 'human'],
-    });
-
-let actions = {
-    a: Test3.action('a', (state, payload: {x: string}) => {
-        return {...state};
-    }),
-    b: Test3.action('addLabel', (state, payload: {y: string}) => {
-        let newLabel = [...state.label];
-    
-        newLabel.push(payload.y);
-        return { label: newLabel };
-    })
-};
-
-export {
-    Test3,
-    actions
+    // https://www.tslang.cn/docs/handbook/advanced-types.html
+export const addActions = <T, A>(target: T, actions: A) => {
+    return Object.assign(target, { actions });
 }

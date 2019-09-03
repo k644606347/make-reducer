@@ -72,33 +72,33 @@ const makeReducer = <N extends string, State, Action extends string, Payload>({
     }
 }
 
-export const Test2 = makeReducer({
-    namespace: 'test',
-    initialState: {
-        name: 'tom',
-        id: '5858fccee138233f9d645621',
-        label: ['student', 'human'],
-    },
-    reducers: {
-        a(state, type, payload: { x: string}) {
-            return {...state};
-        },
-        update(state, type, {
-            // name,
-            label
-        }: {
-            // name: number;
-            label?: string;
-        }) {
-            return { ...state };
-        },
-        addLabel(state, type, payload) {
-            let newLabel = [...state.label];
+// export const Test2 = makeReducer({
+//     namespace: 'test',
+//     initialState: {
+//         name: 'tom',
+//         id: '5858fccee138233f9d645621',
+//         label: ['student', 'human'],
+//     },
+//     reducers: {
+//         a(state, type, payload: { x: string}) {
+//             return {...state};
+//         },
+//         update(state, type, {
+//             // name,
+//             label
+//         }: {
+//             // name: number;
+//             label?: string;
+//         }) {
+//             return { ...state };
+//         },
+//         addLabel(state, type, payload: {label: string}) {
+//             let newLabel = [...state.label];
 
-            newLabel.push(payload.label);
-            return { label: newLabel };
-        }
-    }
-});
+//             newLabel.push(payload.label);
+//             return { label: newLabel };
+//         }
+//     }
+// });
 
 export default makeReducer;
