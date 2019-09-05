@@ -1,5 +1,4 @@
 import { Provider, connect } from "react-redux";
-import thunk from 'redux-thunk';
 
 import React from "react";
 import Test from "./Test";
@@ -8,6 +7,7 @@ import UpdateMsg from "./UpdateMsg";
 
 import { applyMiddleware } from 'redux';
 import Test3 from "./Test3";
+import asyncMiddleware from "../middleware";
 
 function logger({ getState }) {
     // debugger;
@@ -30,17 +30,23 @@ function logger({ getState }) {
 const reducers = {
     test: Test.reducer,
     // test2: Test2.reducer,
-    test3: Test3.reducer,
 };
 
-let cr = combineReducers(reducers);
+const reducers2 = {
+    test3: Test3.reducer,
+}
+
+let cr = combineReducers({
+    page1: combineReducers(reducers),
+    ...reducers2,
+});
 
 export type AppState = ReturnType<typeof cr>;
-const store = createStore(cr, applyMiddleware(thunk));
+const store = createStore(cr, applyMiddleware(asyncMiddleware));
 
+console.log(store);
 export type Reducers = typeof reducers;
 export default () => {
-
     return  (
         <Provider store={store}>
             <UpdateMsg />

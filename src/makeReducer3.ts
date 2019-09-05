@@ -1,7 +1,9 @@
+import { Dispatch } from "redux";
 
 const separator = ':';
 
 type Reducer<S, P, T> = (state: S, payload: P, type: T) => Partial<S>;
+export type ReduxDispatch = Dispatch;
 
 const buildActionType = (modelName: string, type: string) => {
     return modelName + separator + type;
@@ -51,7 +53,7 @@ export const createModel = <S>(modelName: string, initialState: S) => {
         return {...state, ...payload};
     }]);
 
-    const asyncAction = <T extends string, P, PromiseResult>(type: T, handler: (payload: P, dispatch, getState) => Promise<PromiseResult>) => {
+    const async = <P, PromiseResult>(handler: (payload: P, dispatch: ReduxDispatch, getState: () => S) => Promise<PromiseResult>) => {
         let action = (payload: P) => {
             return (...args) => {
                 return handler(payload, args[0], args[1]);
@@ -60,14 +62,19 @@ export const createModel = <S>(modelName: string, initialState: S) => {
 
         return action;
     }
+
     return {
         setState,
         reducer: rootReducer,
         action,
-        asyncAction,
+        async,
     };
 }
-    // https://www.tslang.cn/docs/handbook/advanced-types.html
-export const addActions = <T, A>(target: T, actions: A) => {
+
+export const assignActions = <T, A>(target: T, actions: A) => {
     return Object.assign(target, { actions });
+}
+
+export const assignAsyncs = <T, A>(target: T, asyncs: A) => {
+    return Object.assign(target, { asyncs });
 }

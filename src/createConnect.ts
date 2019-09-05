@@ -1,7 +1,7 @@
-import { connect } from "react-redux";
+import { connect, Connect } from "react-redux";
 
 export default function createConnect<S>(appState: S) {
-    return () => {
-        return connect;
-    }
+    let proxyConnect = (mapStateToProps, mapDispatchToProps) => {
+        return connect();
+    };
 }

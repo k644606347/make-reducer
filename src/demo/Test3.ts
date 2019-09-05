@@ -1,4 +1,4 @@
-import { addActions, createModel } from "../makeReducer3";
+import { assignActions, createModel, assignAsyncs } from "../makeReducer3";
 
 const model = createModel(
     'test3',
@@ -8,29 +8,38 @@ const model = createModel(
         label: ['student', 'human'],
     });
 
-let Test3 = addActions(model, {
-    a: model.action('a', (state) => {
+let { action, async } = model;
+
+const model2 = assignActions(model, {
+    a: action('a', (state) => {
         return {...state};
     }),
-    b: model.action('addLabel', (state, payload: {y: string}) => {
+    b: action('addLabel', (state, payload: {y: string}) => {
         let newLabel = [...state.label];
     
         newLabel.push(payload.y);
         return { label: newLabel };
     }),
-    c: model.asyncAction('c', (payload: string, dispatch, getState) => {
-        return new Promise<string>((resolve, reject) => {
-            setTimeout(() => {
-                resolve(payload);
-            }, 2000);
-        }).then((data) => {
-            dispatch(Test3.actions.b({ y: data }));
-            return data;
-        });
-    }),
 });
 
-let arr1: [string, number][] = [['a', 1], ['b', 2]];
-let arr2 = arr1.map(n => n[0]);
+const c = async((payload: string, dispatch, getState) => {
+    return new Promise<string>((resolve, reject) => {
+        setTimeout(() => {
+            resolve(payload);
+        }, 2000);
+    }).then((data) => {
+        dispatch(model2.actions.b({ y: data }));
+        return data;
+    });
+});
 
+const Test3 = assignAsyncs(model2, {
+    c,
+});
+
+let arr1 = ['x','y'];
+
+let obj1 = {
+    [arr1[1]]:arr1[1]
+}
 export default Test3;
