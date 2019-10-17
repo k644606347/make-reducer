@@ -1,16 +1,18 @@
 import { createModel } from "../makeReducer";
+import { mergeLoadReducers, LoadInfo } from "./LoadInfo";
 
 export type UserModel = {
-    loadStatus: 'beforeload' | 'loading' | 'done' | 'error';
     id: string;
     name: string;
     label: string[];
-}
+} & LoadInfo;
+
 const User = createModel<UserModel>(
     {
         name: 'User',
         state: {
             loadStatus: 'beforeload',
+            loadMsg: '',
             name: 'tom',
             id: '5858fccee138233f9d645621',
             label: ['student', 'human'],
@@ -28,6 +30,7 @@ let actions = subscribe(
         loadStatus: infer((state, payload: UserModel['loadStatus'], type) => {
                 return {...state, loadStatus: payload};
         }),
+        ...mergeLoadReducers(),
         addLabel: infer((state, payload: UserModel['label'], type) => {
             return {...state , label: [...state.label, ...payload]};
         }),
@@ -38,17 +41,17 @@ let actions = subscribe(
     {
         // setName: () => {return Promise.resolve('123')},
         delay: inferEffect((payload: string, dispatch, getState) => {
-            dispatch(actions.loadStatus('loading'));
+            dispatch(actions.loading('loading'));
             return new Promise<string>((resolve, reject) => {
                 setTimeout(() => {
                     resolve(payload);
                 }, 500);
             }).then((data) => {
-                dispatch(actions.loadStatus('done'));
+                dispatch(actions.loadDone('done'));
                 dispatch(actions.addLabel([payload]));
                 return data;
             }).catch(()=> {
-                dispatch(actions.loadStatus('error'));
+                dispatch(actions.loadError('error'));
             })
         })
     }
