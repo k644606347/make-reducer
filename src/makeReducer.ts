@@ -6,7 +6,8 @@ type FuncName<T>  = {
     [k in keyof T]: T[k] extends Function ? k : never;
 }[keyof T];
 
-type Reducer<S, P, T = string> = (state: S, payload: P, type: T) => Partial<S>;
+type Reducer<S, P, T = string> = (state: S, payload: P, type: T) => Partial<S>; // TODO 是否可返回部分State？
+// type Reducer<S, P, T = string> = (state: S, payload: P, type: T) => S;
 type Effect<S, P, PromiseResult> = (payload: P, dispatch: ReduxDispatch, getState: () => S) => Promise<PromiseResult>;
 type InvalidMethod = never;
 
