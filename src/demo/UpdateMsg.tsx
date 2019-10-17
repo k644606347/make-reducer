@@ -1,10 +1,9 @@
 import { connect } from "react-redux";
 import React from "react";
 import { Reducers, AppState } from "./App";
-import Test from "./Test";
-import Test3, { actions } from "./Test3";
+import User, { actions } from "./User";
 import { Dispatch } from "redux";
-import { ReduxDispatch } from "../makeReducer3";
+import { ReduxDispatch } from "../makeReducer";
 import { AsyncDispatch } from "../middleware";
 
 type Props = {
@@ -15,8 +14,8 @@ type Props = {
 
 export default connect(
     (state: AppState) => ({
-        name: state.page1.test.name,
-        label: state.test3.label,
+        name: state.tests.test.name,
+        label: state.user.label,
         // label: state.test2.label,
     })
 )((props: Props) => {

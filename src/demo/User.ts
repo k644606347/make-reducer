@@ -1,11 +1,11 @@
-import { createModel } from "../makeReducer3";
+import { createModel } from "../makeReducer";
 
-type Test3Model = {
+type UserModel = {
     id: string;
     name: string;
     label: string[];
 }
-const Test3 = createModel<Test3Model>(
+const User = createModel<UserModel>(
     {
         name: 'Test3',
         state: {
@@ -16,14 +16,14 @@ const Test3 = createModel<Test3Model>(
     }
 );
 
-let { subscribe, infer, infer2 } = Test3;
+let { subscribe, infer, infer2 } = User;
 
 let actions = subscribe(
     {
         setName: infer((state, payload: string) => {
                     return {...state, name: payload};
         }),
-        addLabel: infer((state, payload: Test3Model['label']) => {
+        addLabel: infer((state, payload: UserModel['label']) => {
             return {label: [...state.label, ...payload]};
         }),
         test() { // 错误的订阅，将无法生成action
@@ -45,5 +45,5 @@ let actions = subscribe(
     }
 );
 
-export default Test3;
+export default User;
 export { actions };

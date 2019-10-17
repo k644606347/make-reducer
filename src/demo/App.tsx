@@ -1,13 +1,13 @@
 import { Provider, connect } from "react-redux";
 
 import React from "react";
-import Test from "./Test";
 import { createStore, combineReducers, Reducer } from "redux";
 import UpdateMsg from "./UpdateMsg";
 
 import { applyMiddleware } from 'redux';
-import Test3 from "./Test3";
+import User from "./User";
 import asyncMiddleware from "../middleware";
+import { Test } from "../makeReducer-bak";
 
 function logger({ getState }) {
     // debugger;
@@ -29,15 +29,14 @@ function logger({ getState }) {
 
 const reducers = {
     test: Test.reducer,
-    // test2: Test2.reducer,
 };
 
 const reducers2 = {
-    test3: Test3.reducer,
+    user: User.reducer,
 }
 
 let cr = combineReducers({
-    page1: combineReducers(reducers),
+    tests: combineReducers(reducers),
     ...reducers2,
 });
 
