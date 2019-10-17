@@ -38,7 +38,7 @@ let actions = subscribe(
                     resolve(Number(payload));
                 }, 2000);
             }).then((data) => {
-                dispatch(actions.addLabel(['delay-label']));
+                dispatch(actions.addLabel([payload]));
                 return data;
             });
         })
