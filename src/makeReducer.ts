@@ -33,7 +33,7 @@ export const createModel = <S>(modelConfig: ModelConfig<S>) => {
 
     let { name: modelName, state: initialState } = modelConfig;
     
-    const rootReducer = (state = initialState, action: { type: string; payload }) => {
+    const baseReducer = (state = initialState, action: { type: string; payload }) => {
         let { type: reduxType, payload } = action,
             parsedArr = parseActiontype(reduxType),
             type = parsedArr[1];
@@ -52,18 +52,29 @@ export const createModel = <S>(modelConfig: ModelConfig<S>) => {
         }
     }
 
+    // type Infer = <P, PR, Func = Reducer<S, P> | Effect<S, P, PR>>(handler: Func) => Func extends Effect<S, infer P, infer PR> ? Effect<S, P, PR> :
+    //             Func extends Reducer<S, infer P, infer T> ? Reducer<S, P, T> : InvalidMethod;
+    // const infer: Infer = (handler) => {
+    //     return handler as any;
+    // }
+
+    // type InferEffect = <P, PR>(handler: Effect<S, P, PR>) => Effect<S, P, PR>;
+    // type InferReducer = <P>(handler: Reducer<S, P>) => Reducer<S, P>;
+    // type Infer = InferReducer | InferEffect;
     const infer = <P>(handler: Reducer<S, P>) => {
         return handler;
     }
-    const infer2 = <P, PR>(handler: Effect<S, P, PR>) => {
+    const inferEffect = <P, PR>(handler: Effect<S, P, PR>) => {
         return handler;
     }
 
+    type InferFunc<Func> = Func extends Effect<S, infer P, infer PR> ? (payload: P) => (...args: any[]) => Promise<PR> :
+                            Func extends Reducer<S, infer P, infer T> ? (payload: P) => { payload: P, type: T } : InvalidMethod;
+
     type Subscribe = <Reducers, Effects, Mix = Reducers & Effects>(reducers?: Reducers, effects?: Effects) => {
-        [k in FuncName<Mix>]: 
-            Mix[k] extends Effect<S, infer P, infer PR> ? (payload: P) => (...args: any[]) => Promise<PR> :
-            Mix[k] extends Reducer<S, infer P, infer T> ? (payload: P) => { payload: P, type: T } : InvalidMethod
+        [k in FuncName<Mix>]: InferFunc<Mix[k]>
     }
+
     const subscribe: Subscribe = (rs, effects) => {
         let actions: any = {};
 
@@ -95,9 +106,9 @@ export const createModel = <S>(modelConfig: ModelConfig<S>) => {
     
     return {
         infer,
-        infer2,
+        inferEffect,
         // setState,
-        reducer: rootReducer,
+        baseReducer,
         subscribe,
     };
 }

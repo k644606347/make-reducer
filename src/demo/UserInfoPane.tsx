@@ -1,12 +1,13 @@
 import { connect } from "react-redux";
 import React from "react";
-import { Reducers, AppState } from "./App";
-import User, { actions } from "./User";
+import { RootState } from "./App";
+import User, { actions, UserModel } from "./User";
 import { Dispatch } from "redux";
 import { ReduxDispatch } from "../makeReducer";
 import { AsyncDispatch } from "../middleware";
 
 type Props = {
+    user: UserModel;
     loadStatus: string;
     name: string;
     label: string[];
@@ -14,7 +15,8 @@ type Props = {
 };
 
 export default connect(
-    (state: AppState) => ({
+    (state: RootState) => ({
+        user: state.user,
         name: state.tests.test.name,
         label: state.user.label,
         loadStatus: state.user.loadStatus,
@@ -22,11 +24,6 @@ export default connect(
     })
 )((props: Props) => {
         return <div> 
-            {/* <input value={props.name} onChange={e => {
-                props.dispatch(Test.actions.update({
-                    name: e.target.value
-                }));
-            }} /> */}
             <input placeholder="请填写label" id="label-input"/>
             <button disabled={props.loadStatus === 'loading'} onClick={e => {
                 let inputNode = document.querySelector<HTMLInputElement>('#label-input');
@@ -41,13 +38,10 @@ export default connect(
                     console.log('promise then:', data);
                 })
             }}>延迟一段时间后，添加label!</button>
-            <p>{props.loadStatus}</p>
-            <p>label列表:</p>
-            <ol>
-                {
-                    props.label.map(l => <li>{l}</li>)
-                }
-            </ol>
+            <p>用户信息: </p>
+            <pre>
+                {JSON.stringify(props.user, null, 4)}
+            </pre>
         </div>;
     }
 )

@@ -1,6 +1,6 @@
 import { createModel } from "../makeReducer";
 
-type UserModel = {
+export type UserModel = {
     loadStatus: 'beforeload' | 'loading' | 'done' | 'error';
     id: string;
     name: string;
@@ -18,7 +18,7 @@ const User = createModel<UserModel>(
     }
 );
 
-let { subscribe, infer, infer2 } = User;
+let { subscribe, infer, inferEffect } = User;
 
 let actions = subscribe(
     {
@@ -37,7 +37,7 @@ let actions = subscribe(
     }, 
     {
         // setName: () => {return Promise.resolve('123')},
-        delay: infer2((payload: string, dispatch, getState) => {
+        delay: inferEffect((payload: string, dispatch, getState) => {
             dispatch(actions.loadStatus('loading'));
             return new Promise<string>((resolve, reject) => {
                 setTimeout(() => {

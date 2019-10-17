@@ -1,8 +1,9 @@
 import { Provider, connect } from "react-redux";
+import { makeStore } from '../index';
 
 import React from "react";
-import { createStore, combineReducers, Reducer } from "redux";
-import UpdateMsg from "./UpdateMsg";
+import { combineReducers } from "redux";
+import UpdateMsg from "./UserInfoPane";
 
 import { applyMiddleware } from 'redux';
 import User from "./User";
@@ -32,19 +33,19 @@ const reducers = {
 };
 
 const reducers2 = {
-    user: User.reducer,
+    user: User.baseReducer,
 }
 
-let cr = combineReducers({
+let rootReducer = combineReducers({
     tests: combineReducers(reducers),
     ...reducers2,
 });
 
-export type AppState = ReturnType<typeof cr>;
-const store = createStore(cr, applyMiddleware(asyncMiddleware));
+export type RootState = ReturnType<typeof rootReducer>;
+
+const store = makeStore(rootReducer, applyMiddleware(asyncMiddleware));
 
 console.log(store);
-export type Reducers = typeof reducers;
 export default () => {
     return  (
         <Provider store={store}>
