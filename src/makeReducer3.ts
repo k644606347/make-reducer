@@ -2,7 +2,14 @@ import { Dispatch } from "redux";
 
 const separator = ':';
 
-type Reducer<S, P, T> = (state: S, payload: P, type: T) => Partial<S>;
+type FuncName<T>  = {
+    [k in keyof T]: T[k] extends Function ? k : never;
+}[keyof T];
+
+type Reducer<S, P, T = string> = (state: S, payload: P, type: T) => Partial<S>;
+type Effect<S, P, PromiseResult> = (payload: P, dispatch: ReduxDispatch, getState: () => S) => Promise<PromiseResult>;
+type InvalidMethod = never;
+
 export type ReduxDispatch = Dispatch;
 
 const buildActionType = (modelName: string, type: string) => {
@@ -16,9 +23,15 @@ const parseActiontype = (reduxType: string) => {
     return [modelName, actionType];
 }
 
-export const createModel = <S>(modelName: string, initialState: S) => {
-
+type ModelConfig<S> = {
+    name: string;
+    state: S;
+}
+export const createModel = <S>(modelConfig: ModelConfig<S>) => {
     const reducers: [string, Reducer<S, unknown, string>][] = [];
+
+    let { name: modelName, state: initialState } = modelConfig;
+    
     const rootReducer = (state = initialState, action: { type: string; payload }) => {
         let { type: reduxType, payload } = action,
             parsedArr = parseActiontype(reduxType),
@@ -37,44 +50,57 @@ export const createModel = <S>(modelName: string, initialState: S) => {
             return state;
         }
     }
-    
-    const action = <T extends string, P>(type: T, reducer: (state: S, payload: P, type: T) => Partial<S>) => {
-        let action = (payload: P) => {
-            return { type: buildActionType(modelName, type), payload };
-        };
-        reducers.push([type, reducer]);
-        return action;
+
+    const infer = <P>(handler: Reducer<S, P>) => {
+        return handler;
+    }
+    const infer2 = <P, PR>(handler: Effect<S, P, PR>) => {
+        return handler;
     }
 
-    const setState = (payload: Partial<S>) => {
-        return { payload, type: buildActionType(modelName, 'setState') };
+    type Subscribe = <Reducers, Effects, Mix = Reducers & Effects>(reducers?: Reducers, effects?: Effects) => {
+        [k in FuncName<Mix>]: 
+            Mix[k] extends Effect<S, infer P, infer PR> ? (payload: P) => (...args: any[]) => Promise<PR> :
+            Mix[k] extends Reducer<S, infer P, infer T> ? (payload: P) => { payload: P, type: T } : InvalidMethod
     }
-    reducers.push(['setState', (state: S, payload: Partial<S>) => {
-        return {...state, ...payload};
-    }]);
+    const subscribe: Subscribe = (rs, effects) => {
+        let actions: any = {};
 
-    const async = <P, PromiseResult>(handler: (payload: P, dispatch: ReduxDispatch, getState: () => S) => Promise<PromiseResult>) => {
-        let action = (payload: P) => {
-            return (...args) => {
-                return handler(payload, args[0], args[1]);
+        for (let type in rs) {
+            actions[type] = (payload) => {
+                return { type: buildActionType(modelName, type), payload };
             }
-        };
+            reducers.push([type, rs[type] as any]);
+        }
 
-        return action;
+        for (let type in effects) {
+            let handler = effects[type];
+            actions[type] = (payload) => {
+                return (...args) => {
+                    return typeof handler === 'function' && handler(payload, args[0], args[1]);
+                }
+            };
+        }
+
+        return actions;
     }
 
+    // const setState = (payload: Partial<S>) => {
+    //     return { payload, type: buildActionType(modelName, 'setState') };
+    // }
+    // reducers.push(['setState', (state: S, action: { payload: Partial<S>, type: 'setState' }) => {
+    //     return {...state, ...action.payload};
+    // }]);
+    
     return {
-        setState,
+        infer,
+        infer2,
+        // setState,
         reducer: rootReducer,
-        action,
-        async,
+        subscribe,
     };
 }
 
 export const assignActions = <T, A>(target: T, actions: A) => {
     return Object.assign(target, { actions });
-}
-
-export const assignAsyncs = <T, A>(target: T, asyncs: A) => {
-    return Object.assign(target, { asyncs });
 }

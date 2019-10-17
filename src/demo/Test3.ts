@@ -1,45 +1,49 @@
-import { assignActions, createModel, assignAsyncs } from "../makeReducer3";
+import { createModel } from "../makeReducer3";
 
-const model = createModel(
-    'test3',
-    {
-        name: 'tom',
-        id: '5858fccee138233f9d645621',
-        label: ['student', 'human'],
-    });
-
-let { action, async } = model;
-
-const model2 = assignActions(model, {
-    a: action('a', (state) => {
-        return {...state};
-    }),
-    b: action('addLabel', (state, payload: {y: string}) => {
-        let newLabel = [...state.label];
-    
-        newLabel.push(payload.y);
-        return { label: newLabel };
-    }),
-});
-
-const c = async((payload: string, dispatch, getState) => {
-    return new Promise<string>((resolve, reject) => {
-        setTimeout(() => {
-            resolve(payload);
-        }, 2000);
-    }).then((data) => {
-        dispatch(model2.actions.b({ y: data }));
-        return data;
-    });
-});
-
-const Test3 = assignAsyncs(model2, {
-    c,
-});
-
-let arr1 = ['x','y'];
-
-let obj1 = {
-    [arr1[1]]:arr1[1]
+type Test3Model = {
+    id: string;
+    name: string;
+    label: string[];
 }
+const Test3 = createModel<Test3Model>(
+    {
+        name: 'Test3',
+        state: {
+            name: 'tom',
+            id: '5858fccee138233f9d645621',
+            label: ['student', 'human'],
+        }
+    }
+);
+
+let { subscribe, infer, infer2 } = Test3;
+
+let actions = subscribe(
+    {
+        setName: infer((state, payload: string) => {
+                    return {...state, name: payload};
+        }),
+        addLabel: infer((state, payload: Test3Model['label']) => {
+            return {label: [...state.label, ...payload]};
+        }),
+        test() {
+            return 123;
+        }
+    }, 
+    {
+        // setName: () => {return Promise.resolve('123')},
+        delay: infer2((payload: string, dispatch, getState) => {
+            return new Promise<number>((resolve, reject) => {
+                setTimeout(() => {
+                    resolve(Number(payload));
+                }, 2000);
+            }).then((data) => {
+                dispatch(actions.addLabel(['delay-label']));
+                return data;
+            });
+        })
+    }
+);
+
 export default Test3;
+export { actions };
