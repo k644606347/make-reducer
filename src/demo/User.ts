@@ -7,7 +7,7 @@ type UserModel = {
 }
 const User = createModel<UserModel>(
     {
-        name: 'Test3',
+        name: 'User',
         state: {
             name: 'tom',
             id: '5858fccee138233f9d645621',
