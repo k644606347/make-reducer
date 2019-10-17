@@ -26,7 +26,7 @@ let actions = subscribe(
         addLabel: infer((state, payload: Test3Model['label']) => {
             return {label: [...state.label, ...payload]};
         }),
-        test() {
+        test() { // 错误的订阅，将无法生成action
             return 123;
         }
     }, 
