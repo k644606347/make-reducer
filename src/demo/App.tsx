@@ -1,5 +1,5 @@
 import { Provider, connect } from "react-redux";
-import { makeStore } from '../index';
+import { makeStore } from '../store';
 
 import React from "react";
 import { combineReducers } from "redux";
