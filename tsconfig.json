@@ -3,7 +3,7 @@
         "baseUrl": "src",
         "rootDir": "./",
         "module": "esnext",
-        "target": "es5",
+        "target": "es6",
         "downlevelIteration": true,
         "sourceMap": true,
         // "allowJs": true,

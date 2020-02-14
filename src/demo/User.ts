@@ -24,9 +24,9 @@ let { subscribe, infer, inferEffect } = User;
 
 let actions = subscribe(
     {
-        setName: infer((state, payload: string, type) => {
+        setName: (state, payload: string, type) => {
             return {...state, name: payload};
-        }),
+        },
         loadStatus: infer((state, payload: UserModel['loadStatus'], type) => {
                 return {...state, loadStatus: payload};
         }),
