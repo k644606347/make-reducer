@@ -9,6 +9,7 @@ import { applyMiddleware } from 'redux';
 import User from "./User";
 import asyncMiddleware from "../middleware";
 import { Test } from "../makeReducer-bak";
+import Demo1UI from "../immer/Demo1UI";
 
 function logger({ getState }) {
     // debugger;
@@ -50,6 +51,7 @@ export default () => {
     return  (
         <Provider store={store}>
             <UpdateMsg />
+            <Demo1UI />
         </Provider>
     )
 }

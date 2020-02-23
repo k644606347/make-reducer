@@ -1,50 +1,95 @@
-import produce, { Draft } from "immer";
+const separator = ':';
 
 type FuncName<T>  = {
     [k in keyof T]: T[k] extends Function ? k : never;
 }[keyof T];
 
-type ImmerReducer<S, P, T = string> = (state: Draft<S>, payload: P, type: T) => S | void;
+type Reducer<S, P, T = string> = (state: S, payload: P, type: T) => Partial<S>; // TODO 是否可返回部分State？
+// type Reducer<S, P, T = string> = (state: S, payload: P, type: T) => S;
+type Effect<S, P, PromiseResult> = (payload: P, dispatch: Dispatch, getState: () => S) => Promise<PromiseResult>;
 type InvalidMethod = never;
 
-export const createModel = <S>() => {
-    const reducers: [string, ImmerReducer<S, unknown, string>][] = [];
+export type Dispatch = React.Dispatch<{payload: any; type: string}>;
+
+const buildActionType = (modelName: string, type: string) => {
+    return modelName + separator + type;
+}
+const parseActiontype = (reduxType: string) => {
+    let separatorIndex = reduxType.indexOf(':'),
+        modelName = reduxType.substring(0, separatorIndex),
+        actionType = reduxType.substring(separatorIndex + 1);
+        
+    return [modelName, actionType];
+}
+
+type ModelConfig<S> = {
+    name: string;
+    state: S;
+}
+export const createModel = <S>(modelConfig: ModelConfig<S>) => {
+    const reducers: [string, Reducer<S, unknown, string>][] = [];
+
+    let { name: modelName, state: initialState } = modelConfig;
     
-    const baseReducer = (state: S, action: { type: string; payload }) => {
-        let { type, payload } = action;
+    const baseReducer = (state = initialState, action: { type: string; payload }) => {
+        let { type: reduxType, payload } = action,
+            parsedArr = parseActiontype(reduxType),
+            type = parsedArr[1];
+
+        if (parsedArr[0] !== modelName)
+            return state;
             
         let reducer = reducers.find(r => r[0] === type);
 
-        if (reducer) {
-            return produce(state, (draft) => {
-                return reducer && reducer[1](draft, payload, type);
-            })
-        }
+        if (reducer)
+            return { ...state, ...reducer[1](state, payload, type) };
         else {
-            let err = new Error(`action.type = ${type}没有对应的reducer处理函数`);
+            let err = new Error(`action.type = ${reduxType}没有对应的reducer处理函数`);
             console.error(err);
             return state;
         }
     }
-    
-    const infer = <P = Partial<S>>(handler: ImmerReducer<Draft<S>, P>) => {
+
+    // type Infer = <P, PR, Func = Reducer<S, P> | Effect<S, P, PR>>(handler: Func) => Func extends Effect<S, infer P, infer PR> ? Effect<S, P, PR> :
+    //             Func extends Reducer<S, infer P, infer T> ? Reducer<S, P, T> : InvalidMethod;
+    // const infer: Infer = (handler) => {
+    //     return handler as any;
+    // }
+
+    // type InferEffect = <P, PR>(handler: Effect<S, P, PR>) => Effect<S, P, PR>;
+    // type InferReducer = <P>(handler: Reducer<S, P>) => Reducer<S, P>;
+    // type Infer = InferReducer | InferEffect;
+    const infer = <P>(handler: Reducer<S, P>) => {
+        return handler;
+    }
+    const inferEffect = <P, PR>(handler: Effect<S, P, PR>) => {
         return handler;
     }
 
-    type InferFunc<Func> = Func extends ImmerReducer<S, infer P, infer T> ? (payload: P) => { payload: P, type: T } : InvalidMethod;
+    type InferFunc<Func> = Func extends Effect<S, infer P, infer PR> ? (payload: P) => (...args: any[]) => Promise<PR> :
+                            Func extends Reducer<S, infer P, infer T> ? (payload: P) => { payload: P, type: T } : InvalidMethod;
 
-    type Subscribe = <Reducers>(reducers?: Reducers) => {
-        [k in FuncName<Reducers>]: InferFunc<Reducers[k]>
+    type Subscribe = <Reducers, Effects, Mix = Reducers & Effects>(reducers?: Reducers, effects?: Effects) => {
+        [k in FuncName<Mix>]: InferFunc<Mix[k]>
     }
 
-    const makeReducer: Subscribe = (rss) => {
+    const subscribe: Subscribe = (rs, effects) => {
         let actions: any = {};
 
-        for (let type in rss) {
+        for (let type in rs) {
             actions[type] = (payload) => {
-                return { type, payload };
+                return { type: buildActionType(modelName, type), payload };
             }
-            reducers.push([type, rss[type] as any]);
+            reducers.push([type, rs[type] as any]);
+        }
+
+        for (let type in effects) {
+            let handler = effects[type];
+            actions[type] = (payload) => {
+                return (...args) => {
+                    return typeof handler === 'function' && handler(payload, args[0], args[1]);
+                }
+            };
         }
 
         return actions;
@@ -59,10 +104,10 @@ export const createModel = <S>() => {
     
     return {
         infer,
-        // inferEffect,
+        inferEffect,
         // setState,
         baseReducer,
-        makeReducer,
+        subscribe,
     };
 }
 
