@@ -27,7 +27,7 @@ export const actions = Demo1.subscribe(
             return new Promise((resolve, reject) => {
                 setTimeout(() => {
                     console.log('setTimeout', getState());
-                    dispatch(actions.setName('xxx'));
+                    dispatch(actions.setName(payload));
                     console.log('setName after', getState());
                     resolve(getState());
                 }, 3000);

@@ -39,7 +39,7 @@ const reducers2 = {
 
 let rootReducer = combineReducers({
     tests: combineReducers(reducers),
-    ...reducers2,
+    users: combineReducers(reducers2),
 });
 
 export type RootState = ReturnType<typeof rootReducer>;

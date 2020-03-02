@@ -22,8 +22,9 @@ export default function Demo1UI() {
             <div onClick={e => {
                 dispatch.delaySetName(Math.random() + '');
             }}>{state.name}</div>
+            <div dangerouslySetInnerHTML={{__html: '<百度>xxxx</百度>'}}></div>
             <div onClick={e => {
-                dispatch1(1);
-            }}>use1.state = {JSON.stringify(state1)}</div>
+                dispatch.delaySetName(state.name + '1')
+            }}>Demo1.state = {JSON.stringify(state)}</div>
     </div>;
 }

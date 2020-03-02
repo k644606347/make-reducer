@@ -16,10 +16,10 @@ type Props = {
 
 export default connect(
     (state: RootState) => ({
-        user: state.user,
+        user: state.users.user,
         name: state.tests.test.name,
-        label: state.user.label,
-        loadStatus: state.user.loadStatus,
+        label: state.users.user.label,
+        loadStatus: state.users.user.loadStatus,
         // label: state.test2.label,
     })
 )((props: Props) => {
