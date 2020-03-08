@@ -12,6 +12,12 @@ let delaySet = inferObj.inferEffect((actions, payload) => {
     return Promise.resolve(1);
 });
 
+function enumerable(value: boolean) {
+    return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+        // debugger;
+        descriptor.enumerable = value;
+    };
+}
 
 type StudentState = {
     name: string;
@@ -27,6 +33,8 @@ export default class Student extends Model<StudentState> {
         super(config);
         console.log(this.state);
     }
+
+    @enumerable(false)
     setName(payload: string) {
         this.state.name = payload;
     }

@@ -3,7 +3,7 @@
         "baseUrl": "src",
         "rootDir": "./",
         "module": "esnext",
-        "target": "es6",
+        "target": "es2018",
         "downlevelIteration": true,
         "sourceMap": true,
         // "allowJs": true,
@@ -16,7 +16,8 @@
         "alwaysStrict": true,
         "strictNullChecks": true,
         "suppressImplicitAnyIndexErrors": true,
-        "esModuleInterop": true
+        "esModuleInterop": true,
+        "experimentalDecorators": true
     },
     "include": ["src/**/*"]
 }

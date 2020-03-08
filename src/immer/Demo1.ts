@@ -1,24 +1,38 @@
 import { createModel } from "./makeReducer";
 
-type Demo1 = {
+export type Demo1 = {
     name: string;
     id: string;
+    desc: string;
+    family: {
+        mama?: string;
+        baba?: string;
+    }
 }
+export const initialState: Demo1 = {
+    name: 'x',
+    id: 'y',
+    desc: 'x an y',
+    family: {
+        mama: 'X',
+        baba: 'Y'
+    }
+};
 export const Demo1 = createModel<Demo1>({
     name: 'demo1',
-    state: {
-        name: 'x',
-        id: 'y'
-    }
+    state: initialState
 });
 
 export const actions = Demo1.subscribe(
     {
         setName: Demo1.infer((state, payload: string, type) => {
-            return {
-                ...state,
-                name: payload,
-            };
+            state.name = payload;
+        }),
+        setID: Demo1.infer((state, payload: string, type) => {
+            state.id = payload;
+        }),
+        setFamily: Demo1.infer((state, payload: Demo1['family'], type) => {
+            Object.assign(state.family, payload);
         })
     },
     {

@@ -191,7 +191,7 @@ Model1.actions.setX(1);
 Model1.actions.setY('xxx');
 Model1.actions.delaySetX(1);
 Model1.actions.noPayload();
-Model1.actions.noPayload2
+// Model1.actions.noPayload2
 
 type flag = undefined extends never ? true : false;
 type flag2 = string extends unknown ? true : false;

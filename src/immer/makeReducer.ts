@@ -1,10 +1,12 @@
+import produce, { Draft } from "immer";
+
 const separator = ':';
 
 type FuncName<T>  = {
     [k in keyof T]: T[k] extends Function ? k : never;
 }[keyof T];
 
-type Reducer<S, P, T = string> = (state: S, payload: P, type: T) => Partial<S>; // TODO 是否可返回部分State？
+type Reducer<S, P, T = string> = (state: S, payload: P, type: T) => void | S; // TODO 是否可返回部分State？
 // type Reducer<S, P, T = string> = (state: S, payload: P, type: T) => S;
 type Effect<S, P, PromiseResult> = (payload: P, dispatch: Dispatch, getState: () => S) => Promise<PromiseResult>;
 type InvalidMethod = never;
@@ -27,10 +29,14 @@ type ModelConfig<S> = {
     state: S;
 }
 export const createModel = <S>(modelConfig: ModelConfig<S>) => {
-    const reducers: [string, Reducer<S, unknown, string>][] = [];
+    const reducers: [string, Reducer<S | Draft<S>, unknown, string>][] = [],
+        patchs: any[] = [];
 
     let { name: modelName, state: initialState } = modelConfig;
     
+    // test
+    window[modelName + '_patchs'] = patchs;
+
     const baseReducer = (state = initialState, action: { type: string; payload }) => {
         let { type: reduxType, payload } = action,
             parsedArr = parseActiontype(reduxType),
@@ -41,8 +47,13 @@ export const createModel = <S>(modelConfig: ModelConfig<S>) => {
             
         let reducer = reducers.find(r => r[0] === type);
 
-        if (reducer)
-            return { ...state, ...reducer[1](state, payload, type) };
+        if (reducer && reducer[1])
+            return produce(state, 
+                    (draftState) => { reducer && reducer[1](draftState, payload, type) },
+                    function(paths, inversePatches) {
+                        patchs.push({paths, inversePatches});
+                    }
+                );
         else {
             let err = new Error(`action.type = ${reduxType}没有对应的reducer处理函数`);
             console.error(err);

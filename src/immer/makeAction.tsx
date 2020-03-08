@@ -9,7 +9,7 @@ export function makeAction<State, Actions extends AnyObject, Model>(config: {
 }) {
     let [state, reducerDispatch] = useReducer(config.model['baseReducer'], config.initialState);
     let { actions, initialState, model } = config;
-    console.log('model', model);
+    // console.log('model', model);
 
     let dispatch = {} as any;
 
