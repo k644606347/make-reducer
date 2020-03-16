@@ -52,6 +52,7 @@ export const createModel = <S>(modelConfig: ModelConfig<S>) => {
                     (draftState) => { reducer && reducer[1](draftState, payload, type) },
                     function(paths, inversePatches) {
                         patchs.push({paths, inversePatches});
+                        console.log(patchs[patchs.length - 1]);
                     }
                 );
         else {
